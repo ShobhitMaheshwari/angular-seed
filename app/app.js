@@ -5,24 +5,13 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.view1',
   'myApp.view2',
-  'myApp.version',
-  'myApp.users'
+  'myApp.version'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
 
   $routeProvider.otherwise({redirectTo: '/view1'});
 }]);
-
-
-angular.module('api.users', [])
-	.factory('Users', function() {
-		var Users = {};
-
-		// Users.method = function() {};
-
-		return Users;
-	});
 
 function getIntervalI(n){
 	var I = []
