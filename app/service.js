@@ -1,7 +1,7 @@
 'use strict';
 
 // Declare app level module which depends on views, and components
-angular.module('myApp', [])
+angular.module('myApp')
 	.service('DataService', function(){
 		this.getRandomIntInclusive = function (min, max) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 			min = Math.ceil(min);
@@ -12,7 +12,7 @@ angular.module('myApp', [])
 			var u = Math.random();
 			var e = Math.log(1 - u)/(-lambda);
 			if(e >= low && e <= high)return e;
-			return getExponentialRandom(lambda, low, high);
+			return this.getExponentialRandom(lambda, low, high);
 		}
 		this.getTi = function(){
 			var date = this.getRandomIntInclusive(0, 89);
@@ -60,9 +60,9 @@ angular.module('myApp', [])
 			}
 			var mid = Math.floor(start + (end-start)/2);
 			if(I[mid][0] + I[mid][1] > val)
-				return search(I, start, mid-1, val);
+				return this.lessthanequalto(I, start, mid-1, val);
 			if(I[mid][0] + I[mid][1] < val)
-				return search(I, mid, end, val);
+				return this.lessthanequalto(I, mid, end, val);
 			return mid;
 		}
 		this.greaterthanequalto = function(I, start, end, val){//return smallest index a using binary search such that I[a][0] >= val
@@ -78,9 +78,9 @@ angular.module('myApp', [])
 			}
 			var mid = Math.floor(start + (end-start)/2);
 			if(I[mid][0] < val)
-				return search(I, mid+1, end, val);
+				return this.greaterthanequalto(I, mid+1, end, val);
 			if(I[mid][0] > val)
-				return search(I, start, mid, val);
+				return this.greaterthanequalto(I, start, mid, val);
 			return mid;
 		}
 	})
