@@ -174,5 +174,18 @@ angular.module('myApp')
 			}
 			return bin;
 		}
+
+		this.getFrequencyVectorWeekly = function(intervals){
+			//Now just bin these interval elements to get their hourly frequency
+			var bin = Array.apply(null, Array(24*7)).map(function (x, i) { return 0; });
+			for (let item of intervals){
+				var temp = binning.weekly(item);
+				bin = bin.map(function (num, idx) {
+					return num + temp[idx];
+				});
+			}
+			return bin;
+		}
+
 	}])
 ;
