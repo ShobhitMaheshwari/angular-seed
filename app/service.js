@@ -32,19 +32,26 @@ angular.module('myApp')
 			return [date*86400+ time, len];
 		}
 		this.getIntervalI = function(n){
+			if(this.I)return this.I;
 			var I = []
 			for(var i = 0; i < n; i++){
 				I.push(this.getTi());
 			}
+			this.I = I;
 			return I;
 		}
 		this.getIntervalJ = function(n){
+			if(this.J)return this.J;
 			var J = []
 			for(var i = 0; i < n; i++){
 				J.push(this.getTj());
 			}
+			this.J = J;
 			return J;
 		}
+
+		this.I = null;
+		this.J = null;
 	})
 	.service('binarysearch', function(){
 		this.lessthanequalto = function(I, start, end, val){//return largest index a using binary search such that I[a][0] + T[a][1]<= val
