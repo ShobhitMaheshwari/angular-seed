@@ -1,3 +1,0 @@
-[submodule "app/bower_components/d3-tip"]
-	path = app/bower_components/d3-tip
-	url = https://github.com/VACLab/d3-tip.git
