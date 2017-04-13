@@ -136,7 +136,7 @@ angular.module('myApp')
 			var a = binarysearch.greaterthanequalto(I, 0, I.length-1, j[0]);
 			//and get smallest index b such that I[b][0] > j[0]+j[1]
 			var b = binarysearch.greaterthanequalto(I, 0, I.length-1, j[0]+j[1]);//since the data is random, we expect the following loop to have very low complexity on average. We also tried to reuse code
-			while(b <= I.length-1 && I[b][0] == j[0]+j[1]){
+			while(b <= I.length-1 && b>=0 && I[b][0] == j[0]+j[1]){
 				b++;
 			}
 			//these are elements in range [a, b-1] which conflict with j
@@ -150,7 +150,7 @@ angular.module('myApp')
 
 			var A = binarysearch.lessthanequalto(Icopy, 0, Icopy.length -1, j[0]);	//get largest index A using binary search such that I[a][0] + I[a][1] < j[0]
 			var B = binarysearch.lessthanequalto(Icopy, 0, Icopy.length -1, j[0] + j[1]); 	//and get largest index B such that I[b][0] + I[b][1] <= j[0]+j[1]
-			while(A >= 0 && Icopy[A][0] + Icopy[A][1] == j[0]){
+			while(A >= 0 && A<=Icopy.length-1 && Icopy[A][0] + Icopy[A][1] == j[0]){
 				A--;
 			}
 			//these are elements in range [A+1, B] which conflict with j

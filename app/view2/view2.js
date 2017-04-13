@@ -37,10 +37,10 @@ angular.module('myApp.view2', ['ngRoute'])
 		return $q(function(resolve, reject) {
 			setTimeout(function() {
 				if(thisobject.data)
-					resolve(thisobject.data);
+					resolve(JSON.parse(JSON.stringify(thisobject.data)));
 				else{
 					thisobject.data = thisobject.getData();
-					resolve(thisobject.data);
+					resolve(JSON.parse(JSON.stringify(thisobject.data)));
 				}
 			}, 0);
 		});
@@ -62,7 +62,7 @@ angular.module('myApp.view2', ['ngRoute'])
 		console.log(d3.max(data, function(d) { return d.letter; }));
 
 
-	var	margin = {top: 20, right: 20, bottom: 60, left: 40};
+	var	margin = {top: 20, right: 20, bottom: 80, left: 60};
 
 	var svg = d3.select("svg").append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")"),
@@ -75,6 +75,19 @@ angular.module('myApp.view2', ['ngRoute'])
 	x.domain([d3.min(data, function(d) { return d.letter; }), d3.max(data, function(d) { return d.letter; })]);
 	y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
+		svg.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("y", -46)
+			.attr("x", 10)
+			.attr("dy", ".71em")
+			.attr("text-anchor", "end")
+			.text("Frequency");
+		svg.append("text")
+			.attr("y", 460)
+			.attr("x", 500)
+			.attr("dy", ".71em")
+			.attr("text-anchor", "end")
+			.text("Time");
 
 	var xAxis = d3.axisBottom()
     	.scale(x)
@@ -132,3 +145,62 @@ var tip = d3.tip()
 
 }]);
 
+
+//Following part does not work. The sole use I tried this was to encapsulate chart functionality for both the views into one
+//This was taken from http://bl.ocks.org/biovisualize/5372077 and modified for d3 version 4.
+/*
+.controller('mainCtrl', function AppCtrl ($scope) {
+            $scope.options = {width: 500, height: 300, 'bar': 'aaa'};
+            $scope.data = [1, 2, 3, 4];
+            $scope.hovered = function(d){
+                $scope.barValue = d;
+                $scope.$apply();
+            };
+            $scope.barValue = 'None';
+        })
+        .directive('barChart', function(){
+            var chart = d3.custom.barChart();
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div class="chart"></div>',
+                scope:{
+                    height: '=height',
+                    data: '=data',
+                    hovered: '&hovered'
+                },
+                link: function(scope, element, attrs) {
+                    var chartEl = d3.select(element[0]);
+                    chart.on('customHover', function(d, i){
+                        scope.hovered({args:d});
+                    });
+
+                    scope.$watch('data', function (newVal, oldVal) {
+                        chartEl.datum(newVal).call(chart);
+                    });
+
+                    scope.$watch('height', function(d, i){
+                        chartEl.call(chart.height(scope.height));
+                    })
+                }
+            }
+        })
+        .directive('chartForm', function(){
+            return {
+                restrict: 'E',
+                replace: true,
+                controller: function AppCtrl ($scope) {
+                    $scope.update = function(d, i){ $scope.data = randomData(); };
+                    function randomData(){
+                        return d3.range(~~(Math.random()*50)+1).map(function(d, i){return ~~(Math.random()*1000);});
+                    }
+                },
+                template: '<div class="form">' +
+                        'Height: {{options.height}}<br />' +
+                        '<input type="range" ng-model="options.height" min="100" max="800"/>' +
+                        '<br /><button ng-click="update()">Update Data</button>' +
+                        '<br />Hovered bar data: {{barValue}}</div>'
+            }
+        });
+;
+*/

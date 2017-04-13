@@ -1,10 +1,14 @@
 <link rel="stylesheet" type="text/css" href="view2/view2.css">
-<p>This is the partial for view 2.</p>
-<p>
-  Showing of 'interpolate' filter:
-  {{ 'Current version is v%VERSION%.' | interpolate }}
-</p>
+<p style="text-align:center">Number of intervals in set I that correspond to a given hour and give weekday</p>
 <p ng-if="loaded==false">
 	Loading...
 </p>
 <svg width="960" height="500"></svg>
+
+<!--
+<div ng-controller="mainCtrl">
+        <chart-form></chart-form>
+        <bar-chart height="options.height" data="data" hovered="hovered(args)"></bar-chart>
+        <bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>
+		    </div>-->
+
