@@ -22,7 +22,6 @@ angular.module('myApp')
 			var time = Math.floor(this.getExponentialRandom(1.0/75600, 0, 86400-1));
 			var len = Math.floor(this.getExponentialRandom(1.0/890, 10, 7200));
 			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
-			console.assert(time >= 0 && time <= 86400-1 && len>=10 && len <=7200, {"message":"a is not greater than b","time":time,"len":len});
 			return [date*86400+ time, len];
 		}
 		//get tj interval as [startsecond, length in seconds]
@@ -31,7 +30,6 @@ angular.module('myApp')
 			var time = this.getRandomIntInclusive(0, 86400-1);
 			var len = {0: 30, 1: 60, 2: 90}[this.getRandomIntInclusive(0, 2)]*60;
 			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
-			console.assert(time >= 0 && time <= 86400-1, {"message":"a is not greater than b","time":time,"len":len});
 			return [date*86400+ time, len];
 		}
 		//get I interval set
