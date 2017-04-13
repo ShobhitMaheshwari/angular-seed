@@ -20,7 +20,7 @@ angular.module('myApp')
 		this.getTi = function(){
 			var date = this.getRandomIntInclusive(0, 89);
 			var time = Math.floor(this.getExponentialRandom(1.0/75600, 0, 86400-1));
-			var len = Math.floor(this.getExponentialRandom(1.0/890, 10, 7200));
+			var len = Math.floor(this.getExponentialRandom(1.0/900, 10, 7200));
 			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
 			return [date*86400+ time, len];
 		}
