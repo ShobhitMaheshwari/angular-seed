@@ -11,7 +11,7 @@ angular.module('myApp.view2', ['ngRoute'])
 
 .service('myApp.view2.DataService', ['DataService', 'plotData', '$q', function(DataService, plotData, $q){
 
-	this.data = null;
+	this.data = null;//to make sure that chenging tabs does not request a new data
 
 	this.getData = function(){
 		console.log("initialization");
@@ -32,12 +32,12 @@ angular.module('myApp.view2', ['ngRoute'])
 		return data;
 	}
 
-	this.getDataAsync = function(){
+	this.getDataAsync = function(){//to ensure that data is obtained asynchronously
 		var thisobject = this;
 		return $q(function(resolve, reject) {
 			setTimeout(function() {
 				if(thisobject.data)
-					resolve(JSON.parse(JSON.stringify(thisobject.data)));
+					resolve(JSON.parse(JSON.stringify(thisobject.data)));//copy this data because we would be modifying it in controller
 				else{
 					thisobject.data = thisobject.getData();
 					resolve(JSON.parse(JSON.stringify(thisobject.data)));
@@ -51,7 +51,7 @@ angular.module('myApp.view2', ['ngRoute'])
 
 	$scope.loaded = false;
 
-	var offset = (new Date(2017,4,15)).getTime();
+	var offset = (new Date(2017,4,15)).getTime();//to ensure that time starts from Monday 00:00
 
 	console.log(offset);
 	dataservice.getDataAsync().then(function(data){
@@ -61,19 +61,19 @@ angular.module('myApp.view2', ['ngRoute'])
 		});
 		console.log(d3.max(data, function(d) { return d.letter; }));
 
+		//create chart
+		var	margin = {top: 20, right: 20, bottom: 80, left: 60};
 
-	var	margin = {top: 20, right: 20, bottom: 80, left: 60};
+		var svg = d3.select("svg").append("g")
+			.attr("transform", "translate(" + margin.left + "," + margin.top + ")"),
+			svg1 = d3.select("svg"),
+		    width = +svg1.attr("width") - margin.left - margin.right,
+			height = +svg1.attr("height") - margin.top - margin.bottom;
 
-	var svg = d3.select("svg").append("g")
-		.attr("transform", "translate(" + margin.left + "," + margin.top + ")"),
-		svg1 = d3.select("svg"),
-	    width = +svg1.attr("width") - margin.left - margin.right,
-    	height = +svg1.attr("height") - margin.top - margin.bottom;
-
-	var	x = d3.scaleTime().rangeRound([0, width]),
-    	y = d3.scaleLinear().rangeRound([height, 0]);
-	x.domain([d3.min(data, function(d) { return d.letter; }), d3.max(data, function(d) { return d.letter; })]);
-	y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+		var	x = d3.scaleTime().rangeRound([0, width]),
+			y = d3.scaleLinear().rangeRound([height, 0]);
+		x.domain([d3.min(data, function(d) { return d.letter; }), d3.max(data, function(d) { return d.letter; })]);
+		y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 
 		svg.append("text")
 			.attr("transform", "rotate(-90)")
@@ -89,64 +89,58 @@ angular.module('myApp.view2', ['ngRoute'])
 			.attr("text-anchor", "end")
 			.text("Time");
 
-	var xAxis = d3.axisBottom()
-    	.scale(x)
-		.tickFormat(d3.timeFormat("%H:%M %a"))
-		.ticks(d3.timeHour.every(12));
+		var xAxis = d3.axisBottom()
+			.scale(x)
+			.tickFormat(d3.timeFormat("%H:%M %a"))
+			.ticks(d3.timeHour.every(12));
 
-	var yAxis = d3.axisLeft()
-    	.scale(y)
-    	.ticks(10);
-var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
-  .html(function(d) {
-    return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
-  });
-	svg.call(tip);
+		var yAxis = d3.axisLeft()
+			.scale(y)
+	    	.ticks(10);
+		var tip = d3.tip()
+			.attr('class', 'd3-tip')
+			.offset([-10, 0])
+			.html(function(d) {
+				return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+			});
+		svg.call(tip);
 
-	svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
-    .selectAll("text")
-      .style("text-anchor", "middle")
-      .attr("dx", "-3em")
-      .attr("dy", ".75em")
-      .attr("transform", "rotate(-60)" );
+		svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.selectAll("text")
+			.style("text-anchor", "middle")
+			.attr("dx", "-3em")
+			.attr("dy", ".75em")
+			.attr("transform", "rotate(-60)" );
 
-  	svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Value ($)");
+		svg.append("g")
+			.attr("class", "y axis")
+			.call(yAxis);
 
-	svg.selectAll(".bar")
-		.data(data)
-		.enter().append("rect")
-		.attr("class", "bar")
-		.attr("x", function(d) { return x(d.letter); })
-		.attr("y", function(d) { return y(d.frequency); })
-		.attr("width", function(d, i){
-			if(i != data.length - 1){
-				return x(data[i+1].letter) - x(data[i].letter);
-			}else
-				return width - x(data[i].letter);
-		})
-		.attr("height", function(d) { return height - y(d.frequency); })
-		.on('mouseover', tip.show)
-      .on('mouseout', tip.hide);
-	$scope.loaded = true;
+		svg.selectAll(".bar")
+			.data(data)
+			.enter().append("rect")
+			.attr("class", "bar")
+			.attr("x", function(d) { return x(d.letter); })
+			.attr("y", function(d) { return y(d.frequency); })
+			.attr("width", function(d, i){
+				if(i != data.length - 1){
+					return x(data[i+1].letter) - x(data[i].letter);
+				}else
+					return width - x(data[i].letter);
+			})
+			.attr("height", function(d) { return height - y(d.frequency); })
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide);
+		$scope.loaded = true;
 	});
 
 }]);
 
 
-//Following part does not work. The sole use I tried this was to encapsulate chart functionality for both the views into one
+//Following part does not work. The sole purpose I tried this was to encapsulate chart functionality for both the views into one
 //This was taken from http://bl.ocks.org/biovisualize/5372077 and modified for d3 version 4.
 /*
 .controller('mainCtrl', function AppCtrl ($scope) {

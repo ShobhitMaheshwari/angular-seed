@@ -3,34 +3,38 @@
 // Declare app level module which depends on views, and components
 angular.module('myApp')
 	.service('DataService', function(){
+		//random integer between min and max (both inclusive)
 		this.getRandomIntInclusive = function (min, max) { //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
 			min = Math.ceil(min);
 			max = Math.floor(max);
 			return Math.floor(Math.random() * (max - min + 1)) + min;
 		}
+		//get exponential random variable with mean = 1/lambda and ensure that it's between low and high inclusive
 		this.getExponentialRandom = function (lambda, low, high){
 			var u = Math.random();
 			var e = Math.log(1 - u)/(-lambda);
 			if(e >= low && e <= high)return e;
 			return this.getExponentialRandom(lambda, low, high);
 		}
+		//get ti interval as [startsecond, length in seconds]
 		this.getTi = function(){
 			var date = this.getRandomIntInclusive(0, 89);
 			var time = Math.floor(this.getExponentialRandom(1.0/75600, 0, 86400-1));
 			var len = Math.floor(this.getExponentialRandom(1.0/890, 10, 7200));
 			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
-
 			console.assert(time >= 0 && time <= 86400-1 && len>=10 && len <=7200, {"message":"a is not greater than b","time":time,"len":len});
 			return [date*86400+ time, len];
 		}
+		//get tj interval as [startsecond, length in seconds]
 		this.getTj = function (){
 			var date = this.getRandomIntInclusive(0, 89);
 			var time = this.getRandomIntInclusive(0, 86400-1);
 			var len = {0: 30, 1: 60, 2: 90}[this.getRandomIntInclusive(0, 2)]*60;
-			if(date === 89) time = 0;//upper limit is 03-31-2017T00.00.00
+			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
 			console.assert(time >= 0 && time <= 86400-1, {"message":"a is not greater than b","time":time,"len":len});
 			return [date*86400+ time, len];
 		}
+		//get I interval set
 		this.getIntervalI = function(n){
 			if(this.I)return this.I;
 			var I = []
@@ -40,6 +44,7 @@ angular.module('myApp')
 			this.I = I;
 			return I;
 		}
+		//get J interval set
 		this.getIntervalJ = function(n){
 			if(this.J)return this.J;
 			var J = []
@@ -54,6 +59,7 @@ angular.module('myApp')
 		this.J = null;
 	})
 	.service('binarysearch', function(){
+		//log(n) complexity, intervals are assumed to be sorted in increasing order according to endtime.
 		this.lessthanequalto = function(I, start, end, val){//return largest index a using binary search such that I[a][0] + T[a][1]<= val
 			if(end < start)return -1;//no such element found
 			if(end == start){
@@ -72,6 +78,7 @@ angular.module('myApp')
 				return this.lessthanequalto(I, mid, end, val);
 			return mid;
 		}
+		//log(n) complexity, intervals are assumed to be sorted in increasing order according to starttime.
 		this.greaterthanequalto = function(I, start, end, val){//return smallest index a using binary search such that I[a][0] >= val
 			if(end < start)return -1;//no such element found
 			if(end == start){
@@ -92,7 +99,11 @@ angular.module('myApp')
 		}
 	})
 	.service('binning', function(){
-		//console.log("binning([3, 11], 10, 2)=" , binning([3, 11], 10, 2)); // [ 1, 2, 1, 1, 1 ]
+		//create a vector of size daylength/binsize and fill it with number of times that interval spans that bin (over all daylength).
+		//therefore say if vector is [3, 11] the resulting vector is [ 1, 2, 1, 1, 1 ] when daylength is 10 and binsize is 2
+		//This means that this vector spans second bin twice over the period of 2 days
+		//
+		//Some other cases are as follows
 		//console.log("binning([3, 9], 10, 2)=", binning([3, 9], 10, 2)); // [ 1, 1, 1, 1, 1 ]
 		//console.log("binning([3, 10], 10, 2)=", binning([3, 10], 10, 2)); // [ 1, 1, 1, 1, 1 ]
 		//console.log("binning([13, 11], 10, 2)=", binning([13, 11], 10, 2)); // [ 1, 2, 1, 1, 1 ]
@@ -106,13 +117,10 @@ angular.module('myApp')
 			bin = Array.apply(null, bin).map(function (x, i) { return x+days; });
 			var end = (start+ti[1] - days*daylength);// this ensures that end will be between 0 and 2*daylength/binsize-1
 			if(end == start)return bin;
-			//console.log(bin);
-			//console.log("start", start, " end" , end);
 			for(var i = 0; i < 2*daylength/binsize; i++){
 				if(i*binsize <= start  && start < (i+1)*binsize) bin[i%(daylength/binsize)]++;
 				else if(i*binsize < end && end <= (i+1)*binsize) bin[i%(daylength/binsize)]++;
 				else if(start <= i*binsize && (i+1)*binsize <= end) bin[i%(daylength/binsize)]++;
-				//console.log(bin);
 			}
 			return bin;
 		}
@@ -124,6 +132,7 @@ angular.module('myApp')
 		}
 	})
 	.service('plotData', ['binarysearch', 'binning', function(binarysearch, binning){
+		//get all overlap interval ti's as a set for a particular j interval
 		this.getOverlapIntervals = function(Ioriginal, j){
 			//sort I on basis of ti
 			var I = Ioriginal.slice();
@@ -153,16 +162,21 @@ angular.module('myApp')
 			while(A >= 0 && A<=Icopy.length-1 && Icopy[A][0] + Icopy[A][1] == j[0]){
 				A--;
 			}
+
 			//these are elements in range [A+1, B] which conflict with j
 			//Now add all elements in the set
 			let set = new Set();
 			for(var i = a; i <= b-1; i++)
 				set.add(I[i]);
-			for(var i = a; i <= b-1; i++)
+			for(var i = A+1; i <= B; i++)
 				set.add(Icopy[i]);
+
 			return set;
 		}
 
+		//get frequency vector for part 1 of the question
+		//Here I'm getting this vector which is sum of frequencies of ti which intersect with j interval
+		//After that in controller I'm adding this vector for all possible j intervals
 		this.getFrequencyVector = function(intervals, j){
 			//Now just bin these interval elements to get their hourly frequency
 			var bin = Array.apply(null, Array(24)).map(function (x, i) { return 0; });
@@ -182,6 +196,7 @@ angular.module('myApp')
 			return bin;
 		}
 
+		//get frequency vector for part 2 of the question
 		this.getFrequencyVectorWeekly = function(intervals){
 			//Now just bin these interval elements to get their hourly frequency
 			var bin = Array.apply(null, Array(24*7)).map(function (x, i) { return 0; });
