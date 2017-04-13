@@ -52,7 +52,7 @@ app/                    --> all of the source files for the application
     view2.js              --> the controller logic
     view2_test.js         --> tests of the controller
 	view2.css
-  bower_components/d3-tip        --> [d3-tip][module]
+  bower_components/d3-tip        --> [d3-tip][https://github.com/VACLab/d3-tip/tree/e6dda5edf4c7c2d946f786082e9d25c24c2561c0]
   app.js                --> main application module
   service.js            --> all services for application
   test.js               --> test for service.js services
