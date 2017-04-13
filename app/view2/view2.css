@@ -21,3 +21,7 @@
   stroke: #000;
   shape-rendering: crispEdges;
 }
+
+.d3-tip{
+	font-size:small;
+}

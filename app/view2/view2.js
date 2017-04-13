@@ -84,6 +84,13 @@ angular.module('myApp.view2', ['ngRoute'])
 	var yAxis = d3.axisLeft()
     	.scale(y)
     	.ticks(10);
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+  });
+	svg.call(tip);
 
 	svg.append("g")
       .attr("class", "x axis")
@@ -117,7 +124,9 @@ angular.module('myApp.view2', ['ngRoute'])
 			}else
 				return width - x(data[i].letter);
 		})
-		.attr("height", function(d) { return height - y(d.frequency); });
+		.attr("height", function(d) { return height - y(d.frequency); })
+		.on('mouseover', tip.show)
+      .on('mouseout', tip.hide);
 	$scope.loaded = true;
 	});
 
