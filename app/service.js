@@ -153,13 +153,15 @@ angular.module('myApp')
 			while(A >= 0 && A<=Icopy.length-1 && Icopy[A][0] + Icopy[A][1] == j[0]){
 				A--;
 			}
+
 			//these are elements in range [A+1, B] which conflict with j
 			//Now add all elements in the set
 			let set = new Set();
 			for(var i = a; i <= b-1; i++)
 				set.add(I[i]);
-			for(var i = a; i <= b-1; i++)
+			for(var i = A+1; i <= B; i++)
 				set.add(Icopy[i]);
+
 			return set;
 		}
 
