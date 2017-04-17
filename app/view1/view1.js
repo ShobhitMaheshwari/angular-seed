@@ -64,7 +64,10 @@ angular.module('myApp.view1', ['ngRoute'])
 
 	dataservice.getDataAsync().then(function(data){
 		data.forEach(function(d, i){
-			d.letter = new Date(d.letter*1000*3600 + offset);
+			//d.letter = new Date(d.letter*1000*3600 + offset);
+			var now = new Date(i*1000*3600);
+			var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+			d.letter = now_utc;
 		});
 
 		//create chart
