@@ -56,10 +56,16 @@ angular.module('myApp.view2', ['ngRoute'])
 	console.log(offset);
 	dataservice.getDataAsync().then(function(data){
 		data.forEach(function(d, i){
-			d.letter = new Date(d.letter*1000*3600 + offset);
-			if(i%24==0)console.log(d.letter);
+			var now = new Date(i*1000*3600);
+			var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+			d.letter = now_utc;
 		});
+		//x.domain([d3.min(data3, function(x){return x.letter;}), d3.max(data3, function(x){return x.letter;})]);
+		//	d.letter = new Date(d.letter*1000*3600 + offset);
+			//if(i%24==0)console.log(d.letter);
+	//	});
 		console.log(d3.max(data, function(d) { return d.letter; }));
+		console.log(data);
 
 		//create chart
 		var	margin = {top: 20, right: 20, bottom: 80, left: 60};

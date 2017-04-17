@@ -20,9 +20,11 @@ angular.module('myApp')
 		this.getTi = function(){
 			var date = this.getRandomIntInclusive(0, 89);
 			var time = Math.floor(this.getExponentialRandom(1.0/75600, 0, 86400-1));
-			var len = Math.floor(this.getExponentialRandom(1.0/890, 10, 7200));
-			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
-			console.assert(time >= 0 && time <= 86400-1 && len>=10 && len <=7200, {"message":"a is not greater than b","time":time,"len":len});
+			var len = Math.floor(this.getExponentialRandom(1.0/900, 10, 7200));
+			if(date == 89){
+				//time = 0;//upper limit is 03-31-2017T00.00.00
+				console.log('A');
+			}
 			return [date*86400+ time, len];
 		}
 		//get tj interval as [startsecond, length in seconds]
@@ -30,8 +32,7 @@ angular.module('myApp')
 			var date = this.getRandomIntInclusive(0, 89);
 			var time = this.getRandomIntInclusive(0, 86400-1);
 			var len = {0: 30, 1: 60, 2: 90}[this.getRandomIntInclusive(0, 2)]*60;
-			if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
-			console.assert(time >= 0 && time <= 86400-1, {"message":"a is not greater than b","time":time,"len":len});
+			//if(date == 89) time = 0;//upper limit is 03-31-2017T00.00.00
 			return [date*86400+ time, len];
 		}
 		//get I interval set
@@ -125,10 +126,14 @@ angular.module('myApp')
 			return bin;
 		}
 		this.daily = function(ti){
-			return this.binning(ti, 86400, 3600);
+			var temp = this.binning(ti, 86400, 3600);
+			console.assert(temp.length == 24, {"message":"Array size wrong daily", "length":temp.length });
+			return temp;
 		}
 		this.weekly = function(ti){
-			return this.binning(ti, 86400*7, 3600);
+			var temp = this.binning(ti, 86400*7, 3600);
+			console.assert(temp.length == 24*7, {"message":"Array size wrong daily", "length":temp.length });
+			return temp;
 		}
 	})
 	.service('plotData', ['binarysearch', 'binning', function(binarysearch, binning){
@@ -202,6 +207,19 @@ angular.module('myApp')
 			var bin = Array.apply(null, Array(24*7)).map(function (x, i) { return 0; });
 			for (let item of intervals){
 				var temp = binning.weekly(item);
+				bin = bin.map(function (num, idx) {
+					return num + temp[idx];
+				});
+			}
+			return bin;
+		}
+
+		//get frequency vector for part 2 of the question
+		this.getFrequencyVectorDaily = function(intervals){
+			//Now just bin these interval elements to get their hourly frequency
+			var bin = Array.apply(null, Array(24)).map(function (x, i) { return 0; });
+			for (let item of intervals){
+				var temp = binning.daily(item);
 				bin = bin.map(function (num, idx) {
 					return num + temp[idx];
 				});
