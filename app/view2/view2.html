@@ -3,12 +3,12 @@
 <p ng-if="loaded==false">
 	Loading...
 </p>
-<svg width="960" height="500"></svg>
-
+	<span>{{title}}</span>
+	<d3-bars data="data" label="name" on-click="d3OnClick(item)" height="500" width="960"></d3-bars>
 <!--
 <div ng-controller="mainCtrl">
-        <chart-form></chart-form>
-        <bar-chart height="options.height" data="data" hovered="hovered(args)"></bar-chart>
-        <bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>
-		    </div>-->
+		<chart-form></chart-form>
+		<bar-chart height="options.height" data="data" hovered="hovered(args)"></bar-chart>
+		<bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>
+			</div>-->
 
