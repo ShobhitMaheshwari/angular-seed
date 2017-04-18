@@ -4073,7 +4073,6 @@ function createInjector(modulesToLoad, strictDi) {
   ////////////////////////////////////
   function loadModules(modulesToLoad) {
     var runBlocks = [], moduleFn;
-			  console.log(modulesToLoad);
     forEach(modulesToLoad, function(module) {
       if (loadedModules.get(module)) return;
       loadedModules.put(module, true);
