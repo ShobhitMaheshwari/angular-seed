@@ -44,7 +44,7 @@ angular.module('myApp')
 				var xAxis = d3.axisBottom()
 					.scale(x)
 					.tickFormat(d3.timeFormat("%H:%M %a"))
-					.ticks(d3.timeHour.every(12));
+					.ticks(scope.ticks);
 
 				var yAxis = d3.axisLeft()
 					.scale(y)
@@ -75,19 +75,19 @@ angular.module('myApp')
 					.attr("class", "y axis")
 					.call(yAxis);
 
-					var bars2 = svg.selectAll(".bar").data(scope.data, function(d) { return d.frequency; });
+				var bars2 = svg.selectAll(".bar").data(scope.data, function(d) { return d.frequency; });
 
-					bars2.enter().append("rect")
-						.attr("class", "bar")
-						.attr("x", function(d) { return x(d.letter); })
-						.attr("y", function(d) { return y(d.frequency); })
-						.attr("width", function(d, i){
-							if(i != scope.data.length - 1){
-								return x(scope.data[i+1].letter) - x(scope.data[i].letter);
-							}else
-								return width - x(scope.data[i].letter);
-						})
-						.attr("height", function(d) { return height - y(d.frequency); });
+				bars2.enter().append("rect")
+					.attr("class", "bar")
+					.attr("x", function(d) { return x(d.letter); })
+					.attr("y", function(d) { return y(d.frequency); })
+					.attr("width", function(d, i){
+						if(i != scope.data.length - 1){
+							return x(scope.data[i+1].letter) - x(scope.data[i].letter);
+						}else
+							return width - x(scope.data[i].letter);
+					})
+					.attr("height", function(d) { return height - y(d.frequency); });
 
 				// on window resize, re-render d3 canvas
 				window.onresize = function() {
@@ -125,7 +125,6 @@ angular.module('myApp')
 						.remove();
 
 					// data that needs DOM = enter() (a set/selection, not an event!)
-
 					// the "UPDATE" set:
 					bars
 						.transition().duration(2000)
@@ -143,5 +142,4 @@ angular.module('myApp')
 				};
 			}
 		};
-
 	});
