@@ -4,6 +4,7 @@ workerApp.run(["worker-app.DataService", "$window", function(dataService, $windo
 	$window.onmessage = function(e) {
 		dataService.getData(e.data).then(function(data){
 			$window.postMessage(data);
+			$window.close();
 		});
 	};
 }])
