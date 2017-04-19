@@ -33,7 +33,15 @@ Now browse to the app at [`localhost:8000/index.html`][local-app-url].
 
 ```
 app/                    --> all of the source files for the application
+  angular.min.js        --> old version of angular for Webworker bootstrapping
+  angular-route.min.js  --> similarly old version of angular router for Webworker bootstrapping
   app.css               --> default stylesheet
+  d3Basic.js            --> directive for chart
+  I1.json               --> split I dataset into half so as to be able to commit to git. (This will be used by webworkers)
+  I2.json               --> (This will be used by webworkers)
+  J.json                --> J dataset (This will be used by webworkers)
+  server.js             --> used to generate I1.json, I2.json, J.json
+  threadpool.js         --> used for threadpool
   components/           --> all app specific modules
     version/              --> version related components
       version.js                 --> version module declaration and basic "version" value service
@@ -47,11 +55,16 @@ app/                    --> all of the source files for the application
     view1.js              --> the controller logic
     view1_test.js         --> tests of the controller
 	view1.css
+	worker.js             --> processing thread scripts
+	worker-app.js         --> processing thread scripts
   view2/                --> the view2 view template and logic (Part 2 of question)
     view2.html            --> the partial template
     view2.js              --> the controller logic
     view2_test.js         --> tests of the controller
 	view2.css
+	worker.js             --> processing thread scripts
+	worker-app.js         --> processing thread scripts
+
   bower_components/d3-tip        --> [d3-tip][https://github.com/VACLab/d3-tip/tree/e6dda5edf4c7c2d946f786082e9d25c24c2561c0]
   app.js                --> main application module
   service.js            --> all services for application

@@ -11,8 +11,10 @@ workerApp.run(["worker-app.DataService", "$window", function(dataService, $windo
 
 .service('worker-app.DataService', ['DataService', 'plotData', '$q', function(DataService, plotData, $q){
 
-	 this.getData2 = function(e, I, J){
+	 this.getData2 = function(e, response){
 
+		var I = response.I;
+		var J = response.J;
 		var bin = Array.apply(null, Array(24)).map(function (x, i) { return 0; });
 		//sort I on basis of ti
 		var I1 = I.slice();
@@ -42,19 +44,6 @@ workerApp.run(["worker-app.DataService", "$window", function(dataService, $windo
 
 	this.getData = function(e){
 		var defer = $q.defer();
-		var that = this;
-		this.readFile("../I1.json").then(function(I1){
-			that.readFile("../I2.json").then(function(I2){
-				that.readFile("../J.json").then(function(J){
-					defer.resolve(that.getData2(e, I1.concat(I2), J));
-				});
-			});
-		});
-		return defer.promise;
-	}
-
-	this.readFile = function(name){
-		var defer = $q.defer();
 		//here you may retrive the data from server
 		var that = this;
 		(function pollerFunc() {
@@ -63,14 +52,14 @@ workerApp.run(["worker-app.DataService", "$window", function(dataService, $windo
 				xmlhttp.onreadystatechange = function() {
 					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 						var response = JSON.parse(xmlhttp.responseText);
-						defer.resolve(response);
+						defer.resolve(that.getData2(e, response));
 					}
 				};
-				xmlhttp.open('GET', name, true);
+				xmlhttp.open('GET', '../randomdata.json', true);
 				xmlhttp.send();
 			}, 0);
 		})();
 		return defer.promise;
-	};
+	}
 }])
 ;

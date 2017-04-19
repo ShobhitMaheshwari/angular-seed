@@ -12,14 +12,15 @@ angular.module('myApp.view1', ['ngRoute'])
 	this.data = null;
 	this.save = function(data){
 		this.data = data;
+		console.log(JSON.stringify(data.map(function(x){return x.frequency})));
 	};
 	this.get = function(){return this.data;};
 })
 
-.controller('View1Ctrl', ['$scope', 'view1.myWorker', 'View1Save', function($scope, myWorker, View1Save) {
+.controller('View1Ctrl', ['$scope', 'myWorker', 'View1Save', function($scope, myWorker, View1Save) {
 	$scope.loaded = false;
 	$scope.ticks = d3.timeHour.every(2);
-
+	$scope.counter = 0;
 	$scope.data = [];
 	for(var i = 0; i < 24; i++){
 		var now = new Date(i*1000*3600);
@@ -32,57 +33,34 @@ angular.module('myApp.view1', ['ngRoute'])
 
 	var start = performance.now();
 
-	if(View1Save.get()!=null)
+	if(View1Save.get()!=null){
 		$scope.data = View1Save.get();
+		$scope.loaded = true;
+	}
 	else{
-		myWorker.startWork(null).then(function(data) {
-			data.forEach(function(d, i){
-				var now = new Date(i*1000*3600);
-				var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-				d.letter = now_utc;
-			});
-
-			$scope.data = $scope.data.map(function(x, i){
-				return {
-					"letter": x.letter,
-					"frequency": x.frequency + data[i].frequency
-				};
-			});
-			console.log(performance.now() - start);
-			View1Save.save($scope.data);
-			$scope.loaded = true;
-		}, function(error) {}, function(response) {	});
+		var pool = new Pool(navigator.hardwareConcurrency || 4);
+		pool.init();
+		for(var i = 0; i < 10; i++){
+			var workerTask = new WorkerTask(myWorker.startWork,function(data){
+				$scope.data = $scope.data.map(function(x, idx){
+					return {
+						"letter": x.letter,
+						"frequency": x.frequency + data[idx]
+					};
+				});
+				console.log(performance.now() - start);
+				$scope.counter++;
+				if($scope.counter == 10){
+					$scope.loaded = true;
+					View1Save.save($scope.data);
+				}
+			}, {"counter": i}, 'view1/worker.js');
+			pool.addWorkerTask(workerTask);
+		}
 	}
 
 	$scope.$on("$destroy", function handler() {
 		myWorker.stopWork();
 	});
-
 }])
-
-
-//http://stackoverflow.com/a/37156560/7451509
-//http://stackoverflow.com/a/27931746/7451509
-.factory("view1.myWorker", ["$q", "$window", function($q, $window) {
-	var worker = undefined;
-	return {
-		startWork: function(postData) {
-			var defer = $q.defer();
-			if (worker) {
-				worker.terminate();
-			}
-			var worker = new $window.Worker('view1/worker.js');
-			worker.onmessage = function(e) {
-				defer.resolve(e.data);
-			};
-			worker.postMessage(postData); // Send data to our worker.
-			return defer.promise;
-		},
-		stopWork: function() {
-			if (worker) {
-				worker.terminate();
-			}
-		}
-	}
-}]);
-
+;
