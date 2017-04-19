@@ -11,8 +11,7 @@ angular.module('myApp')
 			},
 			link: function(scope, iElement, iAttrs) {
 
-				var	margin = {top: 20, right: 20, bottom: 80, left: 60};
-
+				var	margin = {top: iAttrs.marginTop, right: iAttrs.marginRight, bottom: iAttrs.marginBottom, left: iAttrs.marginLeft};
 				var svg = d3.select(iElement[0])
 					.append("svg")
 					.attr("width", iAttrs.width)
@@ -29,7 +28,7 @@ angular.module('myApp')
 
 				svg.append("text")
 					.attr("transform", "rotate(-90)")
-					.attr("y", -46)
+					.attr("y", -80)
 					.attr("x", 10)
 					.attr("dy", ".71em")
 					.attr("text-anchor", "end")
@@ -57,7 +56,9 @@ angular.module('myApp')
 					});
 				svg.call(tip);
 
-				x.domain([d3.min(scope.data, function(d) { return d.letter; }), d3.max(scope.data, function(d) { return d.letter; })]);
+				var diff = Math.floor(scope.data[scope.data.length-1].letter - scope.data[scope.data.length-2].letter);
+				var maxDate = new Date(scope.data[scope.data.length-1].letter.getTime() + diff);
+				x.domain([d3.min(scope.data, function(d) { return d.letter; }), maxDate]);
 				y.domain([0, d3.max(scope.data, function(d) { return d.frequency; })]);
 
 
@@ -85,7 +86,7 @@ angular.module('myApp')
 						if(i != scope.data.length - 1){
 							return x(scope.data[i+1].letter) - x(scope.data[i].letter);
 						}else
-							return width - x(scope.data[i].letter);
+							return x(maxDate) - x(scope.data[i].letter);
 					})
 					.attr("height", function(d) { return height - y(d.frequency); });
 
@@ -108,7 +109,7 @@ angular.module('myApp')
 				scope.render = function(data){
 					if(!data)return;
 					//console.log(data);
-					x.domain([d3.min(data, function(d) { return d.letter; }), d3.max(data, function(d) { return d.letter; })]);
+					x.domain([d3.min(data, function(d) { return d.letter; }), maxDate]);
 					y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
 					svg.select('.x.axis').transition().duration(2000).call(xAxis);
 					svg.select(".y.axis").transition().duration(2000).call(yAxis);
@@ -134,7 +135,7 @@ angular.module('myApp')
 							if(i != data.length - 1){
 								return x(data[i+1].letter) - x(data[i].letter);
 							}else
-								return width - x(data[i].letter);
+								return x(maxDate) - x(data[i].letter);
 						})
 						.attr("height", function(d) { return height - y(d.frequency); })
 					bars.on('mouseover', tip.show)

@@ -13,11 +13,12 @@ angular.module('myApp.view2', ['ngRoute'])
 	this.data = null;
 	this.save = function(data){
 		this.data = data;
+		console.log(JSON.stringify(data.map(function(x){return x.frequency})));
 	};
 	this.get = function(){return this.data;};
 })
 
-.controller('View2Ctrl', ['myWorker', '$scope', 'View2Save', function(myWorker, $scope, View2Save) {
+.controller('View2Ctrl', ['myWorker', '$scope', 'View2Save', 'DataService', function(myWorker, $scope, View2Save, DataService) {
 	$scope.loaded = false;
 	$scope.ticks = d3.timeHour.every(12);
 	$scope.data = [];
@@ -32,32 +33,34 @@ angular.module('myApp.view2', ['ngRoute'])
 
 	var start = performance.now();
 
-	var counter = 0;
-	if(View2Save.get() != null)
+	$scope.counter = 0;
+	if(View2Save.get() != null){
 		$scope.data = View2Save.get();
-	else{
-	for(var i = 0; i < 10; i++){
-		myWorker.startWork(null).then(function(data) {
-			data.forEach(function(d, idx){
-				var now = new Date(idx*1000*3600);
-				var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-				d.letter = now_utc;
-			});
-
-			$scope.data = $scope.data.map(function(x, idx){
-				return {
-					"letter": x.letter,
-					"frequency": x.frequency + data[idx].frequency
-				};
-			});
-			console.log(performance.now() - start);
-			counter++;
-			if(counter == 10){
-				$scope.loaded = true;
-				View2Save.save($scope.data);
-			}
-		}, function(error) {}, function(response) {	});
+		$scope.loaded = true;
 	}
+	else{
+		var pool = new Pool(navigator.hardwareConcurrency || 4);
+		pool.init();
+		for(var i = 0; i < 10; i++){
+			var workerTask = new WorkerTask(myWorker.startWork,function(data){
+				$scope.data = $scope.data.map(function(x, idx){
+					return {
+						"letter": x.letter,
+						"frequency": x.frequency + data[idx]
+					};
+				});
+				console.log(performance.now() - start);
+				$scope.counter++;
+				if($scope.counter == 10){
+					$scope.loaded = true;
+					View2Save.save($scope.data);
+				}
+			}, {
+				"counter": i
+			},
+			'view2/worker.js');
+			pool.addWorkerTask(workerTask);
+		}
 	}
 
 	$scope.$on("$destroy", function handler() {
@@ -65,6 +68,7 @@ angular.module('myApp.view2', ['ngRoute'])
 	});
 
 }])
+/*
 //http://stackoverflow.com/a/37156560/7451509
 //http://stackoverflow.com/a/27931746/7451509
 .factory("myWorker", ["$q", "$window", function($q, $window) {
@@ -118,7 +122,7 @@ angular.module('myApp.view2', ['ngRoute'])
 				type: 'application/javascript; charset=utf-8'
 			});
 			worker = new Worker(blobURL);
-			*/
+
 
 			var worker = new $window.Worker('view2/worker.js');
 			worker.onmessage = function(e) {
@@ -135,98 +139,5 @@ angular.module('myApp.view2', ['ngRoute'])
 		}
 	}
 }]);
-
-/*Currently this pooling does not serve any purpose, but this might be useful for later
- Usage
-var pool = new Pool(navigator.hardwareConcurrency || 4);
-    pool.init();
-
- worker.js
-
- importScripts('quantize.js' , 'color-thief.js');
-
-self.onmessage = function(event) {
-    var wp = event.data;
-    var foundColor = createPaletteFromCanvas(wp.data,wp.pixelCount, wp.colors);
-    wp.result = foundColor;
-    self.postMessage(wp);
-
-    // close this worker
-    self.close();
-};
 */
-//http://www.smartjava.org/content/html5-easily-parallelize-jobs-using-web-workers-and-threadpool
-function Pool(size) {
-    var _this = this;
 
-    // set some defaults
-    this.taskQueue = [];
-    this.workerQueue = [];
-    this.poolSize = size;
-
-    this.addWorkerTask = function(workerTask) {
-        if (_this.workerQueue.length > 0) {
-            // get the worker from the front of the queue
-            var workerThread = _this.workerQueue.shift();
-            workerThread.run(workerTask);
-        } else {
-            // no free workers,
-            _this.taskQueue.push(workerTask);
-        }
-    }
-
-    this.init = function() {
-        // create 'size' number of worker threads
-        for (var i = 0 ; i < size ; i++) {
-            _this.workerQueue.push(new WorkerThread(_this));
-        }
-    }
-
-    this.freeWorkerThread = function(workerThread) {
-        if (_this.taskQueue.length > 0) {
-            // don't put back in queue, but execute next task
-            var workerTask = _this.taskQueue.shift();
-            workerThread.run(workerTask);
-        } else {
-            _this.taskQueue.push(workerThread);
-        }
-    }
-}
-
-// runner work tasks in the pool
-function WorkerThread(parentPool) {
-
-    var _this = this;
-
-    this.parentPool = parentPool;
-    this.workerTask = {};
-
-    this.run = function(workerTask) {
-        this.workerTask = workerTask;
-        // create a new web worker
-        if (this.workerTask.script!= null) {
-            var worker = new Worker(workerTask.script);
-            worker.addEventListener('message', dummyCallback, false);
-            worker.postMessage(workerTask.startMessage);
-        }
-    }
-
-    // for now assume we only get a single callback from a worker
-    // which also indicates the end of this worker.
-    function dummyCallback(event) {
-        // pass to original callback
-        _this.workerTask.callback(event);
-
-        // we should use a seperate thread to add the worker
-        _this.parentPool.freeWorkerThread(_this);
-    }
-
-}
-
-// task to run
-function WorkerTask(script, callback, msg) {
-
-    this.script = script;
-    this.callback = callback;
-    this.startMessage = msg;
-};

@@ -53,11 +53,6 @@ angular.module('myApp')
 			return J;
 		}
 
-		this.reset = function(){
-			this.I = null;
-			this.J = null;
-		}
-
 		this.I = null;
 		this.J = null;
 	})
@@ -140,33 +135,21 @@ angular.module('myApp')
 	})
 	.service('plotData', ['binarysearch', 'binning', function(binarysearch, binning){
 		//get all overlap interval ti's as a set for a particular j interval
-		this.getOverlapIntervals = function(Ioriginal, j){
-			//sort I on basis of ti
-			var I = Ioriginal.slice();
-			I.sort(function(a,b){
-				if(a[0] < b[0])return -1;
-				if(a[0] > b[0])return 1;
-				return 0;
-			});
+		//I1 is sorted by t1, I2 is sorted by endtime
+		this.getOverlapIntervals = function(I1, I2, j){
 			//get smallest index a using binary search such that I[a][0] >= j[0]
-			var a = binarysearch.greaterthanequalto(I, 0, I.length-1, j[0]);
+			var a = binarysearch.greaterthanequalto(I1, 0, I1.length-1, j[0]);
 			//and get smallest index b such that I[b][0] > j[0]+j[1]
-			var b = binarysearch.greaterthanequalto(I, 0, I.length-1, j[0]+j[1]);//since the data is random, we expect the following loop to have very low complexity on average. We also tried to reuse code
-			while(b <= I.length-1 && b>=0 && I[b][0] == j[0]+j[1]){
+			var b = binarysearch.greaterthanequalto(I1, 0, I1.length-1, j[0]+j[1]);//since the data is random, we expect the following loop to have very low complexity on average. We also tried to reuse code
+			while(b <= I1.length-1 && b>=0 && I1[b][0] == j[0]+j[1]){
 				b++;
 			}
 			//these are elements in range [a, b-1] which conflict with j
 
-			var Icopy = Ioriginal.slice();
-			Icopy.sort(function(a,b){ 	//sort I on basis of endtimes
-				if(a[0] +a[1] < b[0] + b[1])return -1;
-				if(a[0] + a[1] > b[0] + b[1])return 1;
-				return 0;
-			});
 
-			var A = binarysearch.lessthanequalto(Icopy, 0, Icopy.length -1, j[0]);	//get largest index A using binary search such that I[a][0] + I[a][1] < j[0]
-			var B = binarysearch.lessthanequalto(Icopy, 0, Icopy.length -1, j[0] + j[1]); 	//and get largest index B such that I[b][0] + I[b][1] <= j[0]+j[1]
-			while(A >= 0 && A<=Icopy.length-1 && Icopy[A][0] + Icopy[A][1] == j[0]){
+			var A = binarysearch.lessthanequalto(I2, 0, I2.length -1, j[0]);	//get largest index A using binary search such that I[a][0] + I[a][1] < j[0]
+			var B = binarysearch.lessthanequalto(I2, 0, I2.length -1, j[0] + j[1]);	//and get largest index B such that I[b][0] + I[b][1] <= j[0]+j[1]
+			while(A >= 0 && A<=I2.length-1 && I2[A][0] + I2[A][1] == j[0]){
 				A--;
 			}
 
@@ -174,9 +157,9 @@ angular.module('myApp')
 			//Now add all elements in the set
 			let set = new Set();
 			for(var i = a; i <= b-1; i++)
-				set.add(I[i]);
+				set.add(I1[i]);
 			for(var i = A+1; i <= B; i++)
-				set.add(Icopy[i]);
+				set.add(I2[i]);
 
 			return set;
 		}
@@ -204,11 +187,11 @@ angular.module('myApp')
 		}
 
 		//get frequency vector for part 2 of the question
-		this.getFrequencyVectorWeekly = function(intervals){
+		this.getFrequencyVectorWeekly = function(intervals, l, h){
 			//Now just bin these interval elements to get their hourly frequency
 			var bin = Array.apply(null, Array(24*7)).map(function (x, i) { return 0; });
-			for (let item of intervals){
-				var temp = binning.weekly(item);
+			for (var i = l; i <h; i++){
+				var temp = binning.weekly(intervals[i]);
 				bin = bin.map(function (num, idx) {
 					return num + temp[idx];
 				});
@@ -230,4 +213,30 @@ angular.module('myApp')
 		}
 
 	}])
+
+	//http://stackoverflow.com/a/37156560/7451509
+	//http://stackoverflow.com/a/27931746/7451509
+	.factory("myWorker", ["$q", "$window", function($q, $window) {
+		var worker = undefined;
+		return {
+			startWork: function(postData, script) {
+				var defer = $q.defer();
+				if (worker) {
+					worker.terminate();
+				}
+				var worker = new $window.Worker(script);
+				worker.onmessage = function(e) {
+					defer.resolve(e.data);
+				};
+				worker.postMessage(postData); // Send data to our worker.
+				return defer.promise;
+			},
+			stopWork: function() {
+				if (worker) {
+					worker.terminate();
+				}
+			}
+		}
+	}])
+
 ;

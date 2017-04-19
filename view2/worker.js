@@ -25,6 +25,8 @@ self.importScripts('../service.js');
 self.importScripts('worker-app.js');
 self.importScripts('../view1/view1.js');
 self.importScripts('view2.js');
+self.importScripts('../view1static/view1.js');
+self.importScripts('../view2static/view2.js');
 
 self.importScripts('../angular-route.min.js');
 self.importScripts('../d3Basic.js');
