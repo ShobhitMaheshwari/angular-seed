@@ -1,0 +1,23 @@
+<link rel="stylesheet" type="text/css" href="view2/view2.css">
+<p style="text-align:center">Number of intervals in set I that correspond to a given hour and give weekday</p>
+<div ng-if="loaded==false">
+	<p>Loading...</p>
+	<p>Processed {{counter}} million I intervals.</p>
+</div>
+	<span>{{title}}</span>
+	<d3-bars data="data"
+		label="name"
+		height="500"
+		width="1000"
+		ticks="ticks"
+		margin-left="100"
+		margin-bottom="80"
+		margin-top="20"
+		margin-right="20"></d3-bars>
+<!--
+<div ng-controller="mainCtrl">
+		<chart-form></chart-form>
+		<bar-chart height="options.height" data="data" hovered="hovered(args)"></bar-chart>
+		<bar-chart height="300" data="data" hovered="hovered(args)></bar-chart>
+			</div>-->
+

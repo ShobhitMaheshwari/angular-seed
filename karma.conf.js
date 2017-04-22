@@ -2,7 +2,7 @@
 module.exports = function(config) {
   config.set({
 
-    basePath: './app',
+    basePath: './src/main/resources/static',
 
     files: [
       'bower_components/angular/angular.js',
@@ -11,7 +11,12 @@ module.exports = function(config) {
 	  'app.js',
 	  'service.js',
       'components/**/*.js',
-      'view*/**/*.js',
+      'view1/view1.js',
+		'view2/view2.js',
+		'view1static/view1.js',
+		'view2static/view2.js',
+		'view1spring/view1.js',
+		'view2spring/view2.js',
 	  'test.js'
     ],
 

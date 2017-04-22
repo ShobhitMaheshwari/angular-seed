@@ -20,19 +20,28 @@ git clone --recursive https://github.com/ShobhitMaheshwari/angular-seed.git
 cd angular-seed
 ```
 
+Update bower dependencies by
+```
+npm run update-deps
+```
+
+To generate data do:
+```
+node src/main/resources/static/server.js
+```
+
 Run the code locally by
 ```
-npm start
+mvn spring-boot:run
 ```
-Now browse to the app at [`localhost:8000/index.html`][local-app-url].
-
-
+Now browse to the app at [`localhost:8080/index.html`][local-app-url].
 
 
 ## Directory Layout
 
 ```
-app/                    --> all of the source files for the application
+src/main/java/Example.java                   --> server API for computing data
+src/main/resources/static/                    --> all of the source files for the application
   angular.min.js        --> old version of angular for Webworker bootstrapping
   angular-route.min.js  --> similarly old version of angular router for Webworker bootstrapping
   app.css               --> default stylesheet
@@ -64,6 +73,10 @@ app/                    --> all of the source files for the application
 	view2.css
 	worker.js             --> processing thread scripts
 	worker-app.js         --> processing thread scripts
+  view1_static/           --> static computed data
+  view2_static/
+  view1_spring/           --> processing done on server
+  view2_spring/
 
   bower_components/d3-tip        --> [d3-tip][https://github.com/VACLab/d3-tip/tree/e6dda5edf4c7c2d946f786082e9d25c24c2561c0]
   app.js                --> main application module
@@ -87,12 +100,12 @@ The `angular-seed` app comes preconfigured with unit tests. These are written in
 which we run with the [Karma][karma] test runner. We provide a Karma configuration file to run them.
 
 * The configuration is found at `karma.conf.js`.
-test file is configured as app/test.js
+test file is configured as src/main/resources/static/test.js
 
 The easiest way to run the unit tests is to use the supplied npm script:
 
 ```
-npm test
+npm run test-single-run
 ```
 
 **Note:**
