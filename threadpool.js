@@ -68,7 +68,7 @@ function WorkerThread(parentPool) {
 		this.workerTask = workerTask;
 		// create a new web worker
 		if (this.workerTask.script!= null) {
-			workerTask.script(workerTask.startMessage, workerTask.scriptargs).then(function(data){
+			workerTask.script(workerTask.startMessage, workerTask.scriptargs, workerTask.id).then(function(data){
 				dummyCallback(data);
 			}, function(error) {}, function(response) { });
 			//var worker = new Worker(workerTask.script);
@@ -89,10 +89,11 @@ function WorkerThread(parentPool) {
 }
 
 // task to run
-function WorkerTask(script, callback, msg, scriptargs) {
+function WorkerTask(script, callback, msg, scriptargs, id) {
 	this.script = script;
 	this.callback = callback;
 	this.startMessage = msg;
 	this.scriptargs = scriptargs;
+	this.id=id;
 };
 

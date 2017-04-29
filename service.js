@@ -217,23 +217,35 @@ angular.module('myApp')
 	//http://stackoverflow.com/a/37156560/7451509
 	//http://stackoverflow.com/a/27931746/7451509
 	.factory("myWorker", ["$q", "$window", function($q, $window) {
-		var worker = undefined;
+		var worker = {};
 		return {
-			startWork: function(postData, script) {
+			startWork: function(postData, script, id) {
 				var defer = $q.defer();
-				if (worker) {
-					worker.terminate();
-				}
-				var worker = new $window.Worker(script);
-				worker.onmessage = function(e) {
+				if (worker[id])
+					worker[id].terminate();
+
+				worker[id] = new $window.Worker(script);
+				worker[id].onmessage = function(e) {
 					defer.resolve(e.data);
 				};
-				worker.postMessage(postData); // Send data to our worker.
+				worker[id].postMessage(postData); // Send data to our worker.
 				return defer.promise;
 			},
 			stopWork: function() {
 				if (worker) {
-					worker.terminate();
+					for (var key in worker){
+						if (worker.hasOwnProperty(key)){
+							if (worker[key])
+								worker[key].terminate();
+						}
+						console.log('shutdown worker '+key);
+					}
+					for (var key in worker){
+						if (worker.hasOwnProperty(key)){
+							if (worker[key])
+								delete worker[key];
+						}
+					}
 				}
 			}
 		}
