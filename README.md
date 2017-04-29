@@ -126,7 +126,7 @@ If JDK is not already installed, you can download it [here][jdk-download].
 [jdk]: https://wikipedia.org/wiki/Java_Development_Kit
 [jdk-download]: http://www.oracle.com/technetwork/java/javase/downloads
 [karma]: https://karma-runner.github.io/
-[local-app-url]: http://localhost:8000/index.html
+[local-app-url]: http://localhost:8080/index.html
 [node]: https://nodejs.org/
 [npm]: https://www.npmjs.org/
 [protractor]: http://www.protractortest.org/
