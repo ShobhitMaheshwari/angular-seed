@@ -37,7 +37,7 @@ angular.module('myApp.view2spring', ['ngRoute'])
 	$scope.data = [];
 	for(var i = 0; i < 24*7; i++){
 		var now = new Date(i*1000*3600);
-		var now_utc = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+		var now_utc = new Date(now.getUTCFullYear()+47, now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
 		$scope.data.push({
 			"letter": now_utc,
 			"frequency": 0

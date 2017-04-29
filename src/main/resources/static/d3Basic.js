@@ -40,9 +40,13 @@ angular.module('myApp')
 					.attr("text-anchor", "end")
 					.text("Time");
 
+				var timeformat;
+				if(scope.data.length==24*7)timeformat=d3.timeFormat("%H:%M %a");
+				else timeformat=d3.timeFormat("%H:%M");
+
 				var xAxis = d3.axisBottom()
 					.scale(x)
-					.tickFormat(d3.timeFormat("%H:%M %a"))
+					.tickFormat(timeformat)
 					.ticks(scope.ticks);
 
 				var yAxis = d3.axisLeft()
